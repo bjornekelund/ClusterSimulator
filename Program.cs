@@ -67,13 +67,14 @@ namespace ClusterSimulator
                 {
                     Random random = new();
                     string suffix = new([.. Enumerable.Range(0, 3).Select(_ => (char)random.Next('A', 'Z' + 1))]);
-                    string number = new([.. Enumerable.Range(0, 1).Select(_ => (char)random.Next('0', '9' + 1))]);
-                    string prefix1 = new([.. Enumerable.Range(0, 1).Select(_ => (char)random.Next('A', 'Z' + 1))]);
-                    string prefix2 = new([.. Enumerable.Range(0, 1).Select(_ => (char)random.Next('A', 'Z' + 1))]);
+                    string number = ((char)random.Next('0', '9' + 1)).ToString();
+                    string prefix = new([.. Enumerable.Range(0, 2).Select(_ => (char)random.Next('A', 'Z' + 1))]);
                     string mycall = "SM7IUN";
-                    string spotter = $"{prefix1}{prefix2}{number}{suffix}-#:";
+                    string spotter = $"{prefix}{number}{suffix}-#:";
                     string frequency = "14043.2";
-                    string comment = "CW 15 dB 36 WPM CQ";
+                    string db = random.Next(11, 37).ToString() + " dB";
+                    string wpm = random.Next(28, 45).ToString() + " WPM";
+                    string comment = $"CW {db} {wpm} CQ";
                     string time = DateTime.UtcNow.ToString("HHmmZ");
 
                     // AK1A format
