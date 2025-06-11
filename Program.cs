@@ -83,8 +83,9 @@ namespace ClusterSimulator
                     // DX de NN5ABC-#: 14065.00  SM8NIO       CW                             1844Z
                     // DX de PY2MKU-#   14065.0  SM7IUN       CW   29dB Q:9* Z:14,15,20      1922Z
 
+                    Thread.Sleep(125);
+
                     SendMessage(stream, $"DX de {spotter,-9} {frequency,-8} {mycall,-13}{comment,-31}{time}\r\n");
-                    Thread.Sleep(100);
 
                     if (stream.DataAvailable)
                     {
@@ -115,8 +116,6 @@ namespace ClusterSimulator
 
                         SendMessage(stream, response + "\r\n> ");
                     }
-
-                    Thread.Sleep(10); // Small delay to prevent high CPU usage
                 }
             }
             catch (Exception ex)
