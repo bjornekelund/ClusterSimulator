@@ -9,6 +9,18 @@ namespace ClusterSimulator
         private readonly TcpListener listener;
         private bool isRunning;
         private const int PORT = 2323;
+        static bool OWNSPOTS = false; // Set to false random spots of random calls
+        static readonly string OWNCALL = "SM7IUN"; // Set to your own call sign if you want to use it
+
+        static readonly double[][] bandlimits =
+        [
+            [1810.0, 1840.0], // 160m
+            [3500.0, 3570.0], // 80m
+            [7000.0, 7040.0], // 40m
+            [14000.0, 14050.0], // 20m
+            [21000.0, 21050.0], // 15m
+            [28000.0, 28060.0] // 10m
+        ];
 
         public TelnetServer()
         {
@@ -21,7 +33,6 @@ namespace ClusterSimulator
             isRunning = true;
 
             Console.WriteLine($"Telnet server started on port {PORT}");
-            Console.WriteLine("Connect with: telnet localhost 2323");
             Console.WriteLine("Press Ctrl+C to stop the server");
 
             while (isRunning)
@@ -45,6 +56,55 @@ namespace ClusterSimulator
             }
         }
 
+        private static string Randomcall()
+        {
+            Random random = new();
+            string suffix = new([.. Enumerable.Range(0, 3).Select(_ => (char)random.Next('A', 'Z' + 1))]);
+            string number = ((char)random.Next('0', '9' + 1)).ToString();
+            string prefix = new([.. Enumerable.Range(0, 2).Select(_ => (char)random.Next('A', 'Z' + 1))]);
+
+            return $"{prefix}{number}{suffix}";
+        }
+
+        private static string RandomFrequcy()
+        {
+            Random random = new();
+            int bandIndex = random.Next(bandlimits.Length);
+            double frequency = random.NextDouble() * (bandlimits[bandIndex][1] - bandlimits[bandIndex][0]) + bandlimits[bandIndex][0];
+            return frequency.ToString("F1");
+        }
+
+        private static string Randomspot(bool ownspot)
+        {
+            string frequency, spotted, spotter;
+
+            if (ownspot)
+            {
+                spotted = OWNCALL;
+                spotter = Randomcall() + "-#";
+                frequency = "14043.2";
+            }
+            else
+            {
+                spotted = Randomcall();
+                spotter = Randomcall() + "-#";
+                frequency = RandomFrequcy();
+            }
+
+            Random random = new();
+            string comment = $"CW {random.Next(11, 37)} dB {random.Next(28, 45)} WPM CQ";
+            string time = DateTime.UtcNow.ToString("HHmmZ");
+
+            // AK1A format
+            //           1         2         3         4         5         6         7
+            // 012345678901234567890123456789012345678901234567890123456789012345678901234
+            // DX de W3OA-#:     7031.5  W8KJP        CW 12 dB 22 WPM CQ           ? 1945Z
+            // DX de NN5ABC-#: 14065.00  SM8NIO       CW                             1844Z
+            // DX de PY2MKU-#   14065.0  SM7IUN       CW   29dB Q:9* Z:14,15,20      1922Z
+
+            return $"DX de {spotter,-9} {frequency,-8} {spotted,-13}{comment,-31}{time}\r\n";
+        }
+
         private void HandleClient(TcpClient client)
         {
             NetworkStream stream = client.GetStream();
@@ -65,28 +125,10 @@ namespace ClusterSimulator
 
                 while (client.Connected && isRunning)
                 {
-                    Random random = new();
-                    string suffix = new([.. Enumerable.Range(0, 3).Select(_ => (char)random.Next('A', 'Z' + 1))]);
-                    string number = ((char)random.Next('0', '9' + 1)).ToString();
-                    string prefix = new([.. Enumerable.Range(0, 2).Select(_ => (char)random.Next('A', 'Z' + 1))]);
-                    string mycall = "SM7IUN";
-                    string spotter = $"{prefix}{number}{suffix}-#:";
-                    string frequency = "14043.2";
-                    string db = random.Next(11, 37).ToString() + " dB";
-                    string wpm = random.Next(28, 45).ToString() + " WPM";
-                    string comment = $"CW {db} {wpm} CQ";
-                    string time = DateTime.UtcNow.ToString("HHmmZ");
-
-                    // AK1A format
-                    //           1         2         3         4         5         6         7
-                    // 012345678901234567890123456789012345678901234567890123456789012345678901234
-                    // DX de W3OA-#:     7031.5  W8KJP        CW 12 dB 22 WPM CQ           ? 1945Z
-                    // DX de NN5ABC-#: 14065.00  SM8NIO       CW                             1844Z
-                    // DX de PY2MKU-#   14065.0  SM7IUN       CW   29dB Q:9* Z:14,15,20      1922Z
-
                     Thread.Sleep(125);
 
-                    SendMessage(stream, $"DX de {spotter,-9} {frequency,-8} {mycall,-13}{comment,-31}{time}\r\n");
+                    string spotline = Randomspot(OWNSPOTS);
+                    SendMessage(stream, spotline);
 
                     if (stream.DataAvailable)
                     {
@@ -185,6 +227,8 @@ namespace ClusterSimulator
                            "  time           - Show current server time\r\n" +
                            "  echo <message> - Echo back your message\r\n" +
                            "  uptime         - Show server uptime\r\n" +
+                           "  own            - Produce own spots\r\n" +
+                           "  notown         - Produce random spots\r\n" +
                            "  bye            - Disconnect from server";
 
                 case "time":
@@ -193,6 +237,14 @@ namespace ClusterSimulator
                 case "uptime":
                     TimeSpan uptime = DateTime.Now - System.Diagnostics.Process.GetCurrentProcess().StartTime;
                     return $"Server uptime: {uptime.Days}d {uptime.Hours}h {uptime.Minutes}m {uptime.Seconds}s";
+
+                case "own":
+                    OWNSPOTS = true;
+                    return "Producing own spots";
+
+                case "notown":
+                    OWNSPOTS = false;
+                    return "Producing own spots";
 
                 case "echo":
                     if (parts.Length > 1)
