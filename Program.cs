@@ -9,7 +9,7 @@ namespace ClusterSimulator
         private readonly TcpListener listener;
         private bool isRunning;
         private const int PORT = 2323;
-        static bool OWNSPOTS = false; // Set to false random spots of random calls
+        static bool OWNSPOTS = true; // Set to false random spots of random calls
         static readonly string OWNCALL = "SM7IUN"; // Set to your own call sign if you want to use it
 
         static readonly double[][] bandlimits =
