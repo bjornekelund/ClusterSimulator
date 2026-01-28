@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -71,7 +72,7 @@ namespace ClusterSimulator
             Random random = new();
             int bandIndex = random.Next(bandlimits.Length);
             double frequency = random.NextDouble() * (bandlimits[bandIndex][1] - bandlimits[bandIndex][0]) + bandlimits[bandIndex][0];
-            return frequency.ToString("F1");
+            return frequency.ToString("0.0", CultureInfo.GetCultureInfo("en-US"));
         }
 
         private static string Randomspot(bool ownspot)
@@ -102,7 +103,7 @@ namespace ClusterSimulator
             // DX de NN5ABC-#: 14065.00  SM8NIO       CW                             1844Z
             // DX de PY2MKU-#   14065.0  SM7IUN       CW   29dB Q:9* Z:14,15,20      1922Z
 
-            string line = $"DX de {spotter + ":",-10} {frequency,7}  {spotted,-13}{comment,-31}{time}\r\n";
+            string line = $"DX de {spotter + ":",-10} {frequency,7}  {spotted,-12} {comment,-30} {time}\r\n";
             Console.WriteLine("DX de W3OA-#:     7031.5  W8KJP        CW 12 dB 22 WPM CQ           ? 1945Z");
             Console.WriteLine(line);
 
