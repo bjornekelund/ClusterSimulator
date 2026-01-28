@@ -9,13 +9,13 @@ namespace ClusterSimulator
         private readonly TcpListener listener;
         private bool isRunning;
         private const int PORT = 2323;
-        static bool OWNSPOTS = true; // Set to false random spots of random calls
-        static readonly string OWNCALL = "SM7IUN"; // Set to your own call sign if you want to use it
+        static bool OWNSPOTS = false; // Set to false random spots of random calls
+        static readonly string OWNCALL = "SM7IUN"; // Set to your own callsign
 
         static readonly double[][] bandlimits =
         [
             [1810.0, 1840.0], // 160m
-            [3500.0, 3570.0], // 80m
+            [3500.0, 3560.0], // 80m
             [7000.0, 7040.0], // 40m
             [14000.0, 14050.0], // 20m
             [21000.0, 21050.0], // 15m
@@ -102,7 +102,12 @@ namespace ClusterSimulator
             // DX de NN5ABC-#: 14065.00  SM8NIO       CW                             1844Z
             // DX de PY2MKU-#   14065.0  SM7IUN       CW   29dB Q:9* Z:14,15,20      1922Z
 
-            return $"DX de {spotter,-9} {frequency,-8} {spotted,-13}{comment,-31}{time}\r\n";
+            string line = $"DX de {spotter + ":",-10} {frequency,7}  {spotted,-13}{comment,-31}{time}\r\n";
+            Console.WriteLine("DX de W3OA-#:     7031.5  W8KJP        CW 12 dB 22 WPM CQ           ? 1945Z");
+            Console.WriteLine(line);
+
+            return line;
+
         }
 
         private void HandleClient(TcpClient client)
