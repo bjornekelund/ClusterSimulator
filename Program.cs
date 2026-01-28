@@ -104,8 +104,8 @@ namespace ClusterSimulator
             // DX de PY2MKU-#   14065.0  SM7IUN       CW   29dB Q:9* Z:14,15,20      1922Z
 
             string line = $"DX de {spotter + ":",-10} {frequency,7}  {spotted,-12} {comment,-30} {time}\r\n";
-            Console.WriteLine("DX de W3OA-#:     7031.5  W8KJP        CW 12 dB 22 WPM CQ           ? 1945Z");
-            Console.WriteLine(line);
+            //Console.WriteLine("DX de W3OA-#:     7031.5  W8KJP        CW 12 dB 22 WPM CQ           ? 1945Z");
+            //Console.WriteLine(line);
 
             return line;
 
