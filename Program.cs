@@ -130,7 +130,7 @@ namespace ClusterSimulator
 
                 while (client.Connected && isRunning)
                 {
-                    Thread.Sleep(10);
+                    Thread.Sleep(125);
 
                     string spotline = Randomspot(OWNSPOTS);
                     SendMessage(stream, spotline);
