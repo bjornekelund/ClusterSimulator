@@ -104,11 +104,10 @@ namespace ClusterSimulator
             // DX de PY2MKU-#   14065.0  SM7IUN       CW   29dB Q:9* Z:14,15,20      1922Z
 
             string line = $"DX de {spotter + ":",-10} {frequency,7}  {spotted,-12} {comment,-30} {time}\r\n";
-            Console.WriteLine("DX de W3OA-#:     7031.5  W8KJP        CW 12 dB 22 WPM CQ           ? 1945Z");
-            Console.WriteLine(line);
+            //Console.WriteLine("DX de W3OA-#:     7031.5  W8KJP        CW 12 dB 22 WPM CQ           ? 1945Z");
+            Console.WriteLine(line.Replace("\n", "").Replace("\r", ""));
 
             return line;
-
         }
 
         private void HandleClient(TcpClient client)
@@ -131,7 +130,7 @@ namespace ClusterSimulator
 
                 while (client.Connected && isRunning)
                 {
-                    Thread.Sleep(125);
+                    Thread.Sleep(10);
 
                     string spotline = Randomspot(OWNSPOTS);
                     SendMessage(stream, spotline);
@@ -141,7 +140,7 @@ namespace ClusterSimulator
                         int bytesRead = stream.Read(buffer, 0, buffer.Length);
                         if (bytesRead == 0) break; // Client disconnected
 
-                        string input = Encoding.ASCII.GetString(buffer, 0, bytesRead).Trim();
+                        string input = Encoding.GetEncoding("iso-8859-1").GetString(buffer, 0, bytesRead).Trim();
 
                         // Handle telnet control characters
                         input = CleanTelnetInput(input);
@@ -268,7 +267,7 @@ namespace ClusterSimulator
         {
             try
             {
-                byte[] data = Encoding.ASCII.GetBytes(message);
+                byte[] data = Encoding.GetEncoding("iso-8859-1").GetBytes(message);
                 stream.Write(data, 0, data.Length);
                 stream.Flush();
             }
